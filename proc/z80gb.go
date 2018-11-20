@@ -2,6 +2,7 @@
 package proc
 
 import (
+	"github.com/wgroeneveld/gogb/util"
 	"reflect"
 	"strings"
 )
@@ -18,6 +19,8 @@ type Z80 struct {
 	Reg register
 }
 
+var alu = ALU{}
+
 func (cpu *Z80) Nop() int {
 	return 1
 }
@@ -27,30 +30,8 @@ func (cpu *Z80) Halt() int {
 	return 0
 }
 
-func (cpu *Z80) strToFields(fieldNames ...string) ([]reflect.Value) {
-	r := reflect.Indirect(reflect.ValueOf(&cpu.Reg))
-	fields := make([]reflect.Value, len(fieldNames))
-
-	for i, name := range fieldNames {
-		fields[i] = r.FieldByName(name)
-	}
-	return fields
-}
-
-// TODO andhl
-func (cpu *Z80) Andr(x string) int {
-	// TODO ALU
-	return 1
-}
-
-// TODO xorhl
-func (cpu *Z80) Xorr(x string) int {
-	// TODO ALU
-	return 1
-}
-
 func (cpu *Z80) Ld(x string, y string) int {
-	fields := cpu.strToFields(x, y)
+	fields := util.StrToFields(&cpu.Reg, x, y)
 
 	// TODO (HL) specific part, or define another function (lefthand, righthand ops?)
 	fields[0].SetInt(fields[1].Int())
@@ -81,7 +62,7 @@ var opcodes = [...]string {
 	// row 8x
 	// row 9x
 	// row Ax
-	"andr_b",	"andr_c",	"andr_d",	"andr_e",	"andr_h",	"andr_l",	"andhl",	"andr_a",	"xorr_b",	"xorr_c",	"xorr_d",	"dorr_e",	"xorr_h",	"xorr_l",	"xorhl",	"xorr_a",
+	"and_a_b",	"and_a_c",	"and_a_d",	"and_a_e",	"and_a_h",	"and_a_l",	"and_a_hl",	"and_a__a",	"xorr_b",	"xorr_c",	"xorr_d",	"dorr_e",	"xorr_h",	"xorr_l",	"xorhl",	"xorr_a",
 	// row Bx
 	// row Cx
 	// row Dx
@@ -95,14 +76,34 @@ func (cpu *Z80) execute(opcode string) {
 	split := strings.Split(opcode, "_")
 	//args := split[1:]
 
-	method := reflect.ValueOf(cpu).MethodByName(strings.Title(split[0]))
-	in := make([]reflect.Value, len(split) - 1)
-	for i := 0; i < method.Type().NumIn(); i++ {
-		in[i] = reflect.ValueOf(strings.ToUpper(split[i + 1]))
-	}
+	op := strings.Title(split[0])
+	method := reflect.ValueOf(cpu).MethodByName(op)
 
-	result := method.Call(in)[0].Interface().(int)
+	result := 0
+	if !method.IsValid() {
+		result = cpu.callAlu(strings.ToUpper(split[1]), strings.ToUpper(split[2]), op)
+	} else {
+		in := make([]reflect.Value, len(split)-1)
+		for i := 0; i < method.Type().NumIn(); i++ {
+			in[i] = reflect.ValueOf(strings.ToUpper(split[i+1]))
+		}
+
+		result = method.Call(in)[0].Interface().(int)
+	}
 
 	cpu.Cycles += result
 }
 
+func (cpu *Z80) callAlu(x string, y string, op string) int {
+	fields := util.StrToFields(&cpu.Reg, x, y)
+	a, b := int(fields[0].Int()), int(fields[1].Int())
+	alu.A = a
+	alu.B = b
+	alu.Operation = op
+
+	alu.Process()
+	// TODO iets met resultaat van alu doen?
+
+	// All ALU processing takes only one cycle!
+	return 1
+}

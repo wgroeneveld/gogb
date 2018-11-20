@@ -14,6 +14,15 @@ func setup() Z80 {
 
 func TestExecuteOperations(t *testing.T) {
 
+	t.Run("some ALU operation integration test", func(t *testing.T) {
+		cpu := setup()
+		cpu.execute("add_a_b")
+
+		if cpu.Cycles != 1 {
+			t.Errorf("expected one cycle to have passed for ALU operation - actual cycles: %d", cpu.Cycles)
+		}
+	})
+
 	t.Run("ld_ab", func(t *testing.T) {
 		cpu := setup()
 		cpu.execute("ld_a_b")
