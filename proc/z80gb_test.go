@@ -27,6 +27,14 @@ func TestExecuteOperations(t *testing.T) {
 		}
 	})
 
+	t.Run("halt", func(t *testing.T) {
+		cpu.execute("halt")
+
+		if cpu.Halted != true {
+			t.Errorf("expected cpu to have halted, but did not")
+		}
+	})
+
 	t.Run("nop", func(t *testing.T) {
 		cpu.execute("nop")
 
