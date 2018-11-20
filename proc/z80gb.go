@@ -27,15 +27,33 @@ func (cpu *Z80) Halt() int {
 	return 0
 }
 
+func (cpu *Z80) strToFields(fieldNames ...string) ([]reflect.Value) {
+	r := reflect.Indirect(reflect.ValueOf(&cpu.Reg))
+	fields := make([]reflect.Value, len(fieldNames))
+
+	for i, name := range fieldNames {
+		fields[i] = r.FieldByName(name)
+	}
+	return fields
+}
+
+// TODO andhl
+func (cpu *Z80) Andr(x string) int {
+	// TODO ALU
+	return 1
+}
+
+// TODO xorhl
+func (cpu *Z80) Xorr(x string) int {
+	// TODO ALU
+	return 1
+}
+
 func (cpu *Z80) Ld(x string, y string) int {
-	valueOf := reflect.ValueOf(&cpu.Reg)
-	r := reflect.Indirect(valueOf)
+	fields := cpu.strToFields(x, y)
 
-	// TODO indien één van beide operands (HL) is
-	fieldX := r.FieldByName(x)
-	fieldY := r.FieldByName(y)
-
-	fieldX.SetInt(fieldY.Int())
+	// TODO (HL) specific part, or define another function (lefthand, righthand ops?)
+	fields[0].SetInt(fields[1].Int())
 
 	return 1
 }
@@ -63,6 +81,7 @@ var opcodes = [...]string {
 	// row 8x
 	// row 9x
 	// row Ax
+	"andr_b",	"andr_c",	"andr_d",	"andr_e",	"andr_h",	"andr_l",	"andhl",	"andr_a",	"xorr_b",	"xorr_c",	"xorr_d",	"dorr_e",	"xorr_h",	"xorr_l",	"xorhl",	"xorr_a",
 	// row Bx
 	// row Cx
 	// row Dx

@@ -5,13 +5,17 @@ import (
 	"testing"
 )
 
-func TestExecuteOperations(t *testing.T) {
-	cpu := Z80 { 
+func setup() Z80 {
+	return Z80 {
 		Reg: register { A: 1, B: 2, },
 		Cycles: 0,
 	}
-	
+}
+
+func TestExecuteOperations(t *testing.T) {
+
 	t.Run("ld_ab", func(t *testing.T) {
+		cpu := setup()
 		cpu.execute("ld_a_b")
 
 		if cpu.Reg.A != 2 {
@@ -28,6 +32,7 @@ func TestExecuteOperations(t *testing.T) {
 	})
 
 	t.Run("halt", func(t *testing.T) {
+		cpu := setup()
 		cpu.execute("halt")
 
 		if cpu.Halted != true {
@@ -36,10 +41,13 @@ func TestExecuteOperations(t *testing.T) {
 	})
 
 	t.Run("nop", func(t *testing.T) {
+		cpu := setup()
 		cpu.execute("nop")
 
 		if cpu.Cycles != 1 {
 			t.Errorf("expected one cycle to have passed with NOP operation - actual cycles: %d", cpu.Cycles)
 		}		
 	})
+
+
 }
