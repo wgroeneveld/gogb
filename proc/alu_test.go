@@ -2,7 +2,50 @@ package proc
 
 import "testing"
 
-func TestAlu(t *testing.T) {
+func TestALU_FlagSampling(t *testing.T) {
+
+	t.Run("all flags set", func(t *testing.T) {
+		flags:= flags{
+			Z: true,
+			N: true,
+			H: true,
+			C: true,
+		}
+
+		result := flags.sampleFlags();
+
+		if result != 0xF0 {
+			t.Errorf("Expected all bit flags to be set but was: %d", result)
+		}
+	})
+
+	t.Run("some flags set", func(t *testing.T) {
+		flags:= flags{
+			Z: true,
+			N: false,
+			H: false,
+			C: true,
+		}
+
+		result := flags.sampleFlags();
+
+		if result != 0x90 {
+			t.Errorf("Expected all bit flags to be set but was: %d", result)
+		}
+	})
+
+	t.Run("from int to flags", func(t *testing.T) {
+		flags:= flags{}
+		flags.sampleFlagsIn(0x90)
+
+		if flags.Z != true || flags.N != false || flags.H != false || flags.C != true {
+			t.Errorf("Expected bit flags from int not correctly set")
+		}
+		
+	})
+}
+
+func TestALU_Ops(t *testing.T) {
 
 	t.Run("Add 8bit, no carry", func(t *testing.T) {
 		alu := ALU {

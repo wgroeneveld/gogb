@@ -94,6 +94,7 @@ func (cpu *Z80) execute(opcode string) {
 	cpu.Cycles += result
 }
 
+
 func (cpu *Z80) callAlu(x string, y string, op string) int {
 	fields := util.StrToFields(&cpu.Reg, x, y)
 	a, b := int(fields[0].Int()), int(fields[1].Int())
@@ -102,7 +103,10 @@ func (cpu *Z80) callAlu(x string, y string, op string) int {
 	alu.Operation = op
 
 	cycles := alu.Process()
-	// TODO sample flagsOut into F, sample Z into A, return increased cycles
+
+	cpu.Reg.A = alu.Z
+	cpu.Reg.F = alu.FlagsOut.sampleFlags()
 
 	return cycles
 }
+

@@ -20,7 +20,37 @@ And, Or, Nand, Nor, Xor, Xnor, Not, (relational ops)
  						// these will be sampled back into F after the operation
  }
 
- type ALU struct {
+ var bitz = 0x80
+ var bitn = 0x40
+ var bith = 0x20
+ var bitc = 0x10
+
+ func (aluFlags *flags) sampleFlagsIn(f int) {
+ 	aluFlags.Z = f & bitz > 0
+ 	aluFlags.N = f & bitn > 0
+ 	aluFlags.H = f & bith > 0
+ 	aluFlags.C = f & bitc > 0
+ }
+
+func (aluFlags flags) sampleFlags() int {
+	result := 0
+	if aluFlags.Z {
+		result |= bitz
+	}
+	if aluFlags.N {
+		result |= bitn
+	}
+	if aluFlags.H {
+		result |= bith
+	}
+	if aluFlags.C {
+		result |= bitc
+	}
+	return result
+}
+
+
+type ALU struct {
  	A, B, Z 			int
  	FlagsIn, FlagsOut 	flags
  	Operation 			string

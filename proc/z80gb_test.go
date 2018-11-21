@@ -14,6 +14,21 @@ func setup() Z80 {
 
 func TestExecuteOperations(t *testing.T) {
 
+	t.Run("ALU output sampled into CPU registers", func(t *testing.T) {
+		cpu := setup()
+		cpu.Reg.A = 254
+		cpu.Reg.B = 3
+		cpu.execute("add_a_b")
+
+		if cpu.Reg.F == 0 {
+			t.Errorf("expected flags to be sampled into register, but was 0")
+		}
+
+		if cpu.Reg.A != 1 {
+			t.Errorf("expected result to be sampled into register A (2), but was %d", cpu.Reg.A)
+		}
+	})
+
 	t.Run("some ALU operation integration test", func(t *testing.T) {
 		cpu := setup()
 		cpu.execute("add_a_b")
