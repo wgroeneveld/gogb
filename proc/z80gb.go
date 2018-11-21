@@ -62,7 +62,7 @@ var opcodes = [...]string {
 	// row 8x
 	// row 9x
 	// row Ax
-	"and_a_b",	"and_a_c",	"and_a_d",	"and_a_e",	"and_a_h",	"and_a_l",	"and_a_hl",	"and_a__a",	"xorr_b",	"xorr_c",	"xorr_d",	"dorr_e",	"xorr_h",	"xorr_l",	"xorhl",	"xorr_a",
+	"and_a_b",	"and_a_c",	"and_a_d",	"and_a_e",	"and_a_h",	"and_a_l",	"and_a_hl",	"and_a_a",	"xorr_b",	"xorr_c",	"xorr_d",	"dorr_e",	"xorr_h",	"xorr_l",	"xorhl",	"xorr_a",
 	// row Bx
 	// row Cx
 	// row Dx
@@ -101,9 +101,8 @@ func (cpu *Z80) callAlu(x string, y string, op string) int {
 	alu.B = b
 	alu.Operation = op
 
-	alu.Process()
-	// TODO iets met resultaat van alu doen?
+	cycles := alu.Process()
+	// TODO sample flagsOut into F, sample Z into A, return increased cycles
 
-	// All ALU processing takes only one cycle!
-	return 1
+	return cycles
 }

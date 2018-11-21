@@ -9,27 +9,47 @@ import (
 Z80 ALU Unit
 
 	(A) arithmetic operations:
-Add, Sub, Div, Mul, Inc, Decr
+Add(c), Sub(c), Div, Mul, Inc, Decr
 
 	(L) Logical operations:
 And, Or, Nand, Nor, Xor, Xnor, Not, (relational ops)
  */
 
  type flags struct {
- 	Carry, Halfcarry, Zero, Negative int
+ 	Z, N, H, C bool		// 8-bit F register in cpu: ZNHC0000; first 4 are never used
+ 						// these will be sampled back into F after the operation
  }
 
  type ALU struct {
- 	A, B 				int
+ 	A, B, Z 			int
  	FlagsIn, FlagsOut 	flags
  	Operation 			string
 }
 
- func (alu *ALU) Add() {
-	alu.FlagsOut.Zero = 1
+ var bit8 = 0xff
+ var hbit8 = 0x0f
+ var hbit16 = 0x0fff
+ var bit16 = 0xffff
+
+ func (alu *ALU) Addc() int {
+	return 1
  }
 
-func (alu *ALU) Process() {
+ func (alu *ALU) Add() int {
+	result := alu.A + alu.B
+
+	alu.FlagsOut = flags {
+		Z: result == 0,
+		N: false,
+		H : (alu.A & hbit8) + (alu.B & hbit8) > hbit8,
+		C: result > bit8,
+	}
+
+	alu.Z = result & bit8
+	return 1
+ }
+
+func (alu *ALU) Process() int {
 	if alu.Operation == "" {
 		panic(errors.New("Unknown operation!"))
 	}
@@ -39,5 +59,5 @@ func (alu *ALU) Process() {
 		panic(errors.New("Invalid operation: " + alu.Operation))
 	}
 
-	method.Call(nil)
+	return method.Call(nil)[0].Interface().(int)
 }

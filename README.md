@@ -1,5 +1,7 @@
 
-# A Gameboy Emulator implemented in Go
+## A Gameboy Emulator implemented in Go
+
+[![Build Status](https://travis-ci.org/wgroeneveld/gogb.svg?branch=master)](https://travis-ci.org/wgroeneveld/gogb)
 
 ### Why?
 

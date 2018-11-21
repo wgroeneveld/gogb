@@ -6,7 +6,7 @@ type someTest struct {
 	Prop1, Prop2 int
 }
 
-func TestExecuteOperations(t *testing.T) {
+func TestReflectUtil(t *testing.T) {
 	testInstance := someTest{ 1, 2}
 
 	t.Run("StrToFields converts string to callable reflective fields", func(t *testing.T) {
