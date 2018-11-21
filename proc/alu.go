@@ -56,28 +56,84 @@ type ALU struct {
  	Operation 			string
 }
 
- var bit8 = 0xff
- var hbit8 = 0x0f
- var hbit16 = 0x0fff
- var bit16 = 0xffff
+var bit8 = 0xff
+var hbit8 = 0x0f
+var hbit16 = 0x0fff
+var bit16 = 0xffff
 
- func (alu *ALU) Addc() int {
+func (alu *ALU) Addc() int {
 	return 1
- }
+}
 
- func (alu *ALU) Add() int {
+func (alu *ALU) Inc() int {
+	alu.Z = (alu.A + 1) & bit8
+
+	alu.FlagsOut = flags {
+		Z: alu.Z == 0,
+		N: false,
+		H : (alu.A & hbit8) == hbit8,
+		C: alu.FlagsIn.C,
+	}
+
+	return 1
+}
+
+func (alu *ALU) Inc16() int {
+	alu.Z = (alu.A + 1) & bit16
+	return 1
+}
+
+func (alu *ALU) Dec() int {
+	alu.Z = (alu.A - 1) & bit8
+
+	alu.FlagsOut = flags {
+		Z: alu.Z == 0,
+		N: true,
+		H: (alu.A & hbit8) == 0x0,
+		C: alu.FlagsIn.C,
+	}
+
+	return 1
+}
+
+func (alu *ALU) Rlc() int {
+	// TODO carry-in? 
+	alu.Z = (alu.A << 1) & bit8
+	carry := false
+
+	if (alu.A & (1 << 7)) != 0 {
+		alu.Z |= 1
+		carry = true
+	}
+
+	alu.FlagsOut = flags {
+		Z: alu.Z == 0,
+		N: false,
+		H: false,
+		C: carry,
+	}
+
+	return 2
+}
+
+func (alu *ALU) Dec16() int {
+	alu.Z = (alu.A - 1) & bit16
+	return 1
+}
+
+func (alu *ALU) Add() int {
 	result := alu.A + alu.B
 
 	alu.FlagsOut = flags {
 		Z: result == 0,
 		N: false,
-		H : (alu.A & hbit8) + (alu.B & hbit8) > hbit8,
+		H: (alu.A & hbit8) + (alu.B & hbit8) > hbit8,
 		C: result > bit8,
 	}
 
 	alu.Z = result & bit8
 	return 1
- }
+}
 
 func (alu *ALU) Process() int {
 	if alu.Operation == "" {
@@ -89,5 +145,6 @@ func (alu *ALU) Process() int {
 		panic(errors.New("Invalid operation: " + alu.Operation))
 	}
 
+	alu.FlagsOut = alu.FlagsIn
 	return method.Call(nil)[0].Interface().(int)
 }

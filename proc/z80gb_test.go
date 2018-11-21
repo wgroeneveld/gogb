@@ -12,7 +12,34 @@ func setup() Z80 {
 	}
 }
 
-func TestExecuteOperations(t *testing.T) {
+func TestCPUAndALUIntegration(t *testing.T) {
+	t.Run("16-bit Increment splits into 2 8-bit inputs and merges result back", func(t *testing.T) {
+		cpu := setup()
+		cpu.Reg.A = 255
+		cpu.Reg.B = 2
+		cpu.execute("inc16_a_b")
+
+		if cpu.Reg.A != 255 {
+			t.Errorf("expected 8-bit address A to be unmodified, but got %d", cpu.Reg.A)
+		}
+		if cpu.Reg.B != 3 {
+			t.Errorf("expected 8-bit address B to be increased by one, but got %d", cpu.Reg.B)
+		}
+	})
+
+	t.Run("16-bit Increment overflows first 8-bit into second half", func(t *testing.T) {
+		cpu := setup()
+		cpu.Reg.A = 2
+		cpu.Reg.B = 255
+		cpu.execute("inc16_a_b")
+
+		if cpu.Reg.A != 3 {
+			t.Errorf("expected 8-bit address A to be 3, but got %d", cpu.Reg.A)
+		}
+		if cpu.Reg.B != 0 {
+			t.Errorf("expected 8-bit address B to be zero, but got %d", cpu.Reg.B)
+		}
+	})
 
 	t.Run("ALU output sampled into CPU registers", func(t *testing.T) {
 		cpu := setup()
@@ -37,6 +64,9 @@ func TestExecuteOperations(t *testing.T) {
 			t.Errorf("expected one cycle to have passed for ALU operation - actual cycles: %d", cpu.Cycles)
 		}
 	})
+}
+
+func TestExecuteOperations(t *testing.T) {
 
 	t.Run("ld_ab", func(t *testing.T) {
 		cpu := setup()

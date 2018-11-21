@@ -41,11 +41,52 @@ func TestALU_FlagSampling(t *testing.T) {
 		if flags.Z != true || flags.N != false || flags.H != false || flags.C != true {
 			t.Errorf("Expected bit flags from int not correctly set")
 		}
-		
+
 	})
 }
 
 func TestALU_Ops(t *testing.T) {
+
+	t.Run("Dec 8bit", func(t *testing.T) {
+		alu := ALU {
+			A: 1,
+			B: 2,
+			FlagsIn: flags{ C: true },
+			Operation: "Dec",
+		}
+
+		alu.Process()
+
+		if alu.Z != 0 {
+			t.Errorf("expected decrease to increase A with one, but got %d", alu.Z)
+		}
+
+		if alu.FlagsOut.C != true {
+			t.Errorf("expected carry to be unmodified")
+		}
+		if alu.FlagsOut.Z != true {
+			t.Errorf("expected zero flag to be triggered")
+		}
+	})
+
+	t.Run("Inc 8bit, carry not modified", func(t *testing.T) {
+		alu := ALU {
+			A: 1,
+			B: 2,
+			FlagsIn: flags{ C: true },
+			Operation: "Inc",
+		}
+
+		alu.Process()
+
+		if alu.Z != 2 {
+			t.Errorf("expected increase to increase A with one, but got %d", alu.Z)
+		}
+
+		if alu.FlagsOut.C != true {
+			t.Errorf("expected carry to be unmodified")
+		}
+	})
 
 	t.Run("Add 8bit, no carry", func(t *testing.T) {
 		alu := ALU {
