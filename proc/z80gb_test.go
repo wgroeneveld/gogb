@@ -50,7 +50,7 @@ func TestExecuteOperations(t *testing.T) {
 		Reg: register { A: 1, B: 2, },
 		Cycles: 0,
 	}).expects(Z80 {
-		Reg: register { A: 3, B: 2, },
+		Reg: register { A: 2, B: 2, },
 		Cycles: 1,
 	}).verify(t)
 
@@ -63,7 +63,7 @@ func TestExecuteOperations(t *testing.T) {
 		Cycles: 0,
 	}).expects(Z80 {
 		Reg: register { A: 1, B: 2, },
-		Cycles: 0,
+		Cycles: 1,
 	}).verify(t)
 }
 
