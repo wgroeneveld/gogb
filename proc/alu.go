@@ -97,7 +97,7 @@ func (alu *ALU) Dec() int {
 }
 
 func (alu *ALU) Rlc() int {
-	// TODO carry-in? 
+	// TODO carry-in?
 	alu.Z = (alu.A << 1) & bit8
 	carry := false
 
